@@ -6,25 +6,16 @@ import { sassPlugin } from "esbuild-sass-plugin"
 import fs from "fs"
 import { intro, outro, select, text } from "@clack/prompts"
 import { rimraf } from "rimraf"
-import chokidar from "chokidar"
 import prettyBytes from "pretty-bytes"
-import { execSync, spawnSync } from "child_process"
-import http from "http"
-import serveHandler from "serve-handler"
-import { WebSocketServer } from "ws"
+import { execSync } from "child_process"
 import { randomUUID } from "crypto"
 import { Mutex } from "async-mutex"
 import { CreateArgv } from "./args.js"
 import {
   exitIfCancel,
   escapePath,
-  gitPull,
-  popContentFolder,
-  stashContentFolder,
 } from "./helpers.js"
 import {
-  UPSTREAM_NAME,
-  QUARTZ_SOURCE_BRANCH,
   version,
   fp,
   cacheFile,
@@ -204,7 +195,6 @@ See the [documentation](https://quartz.jzhao.xyz) for how to get started.
 
   outro(`You're all set! Not sure what to do next? Try:
   • Customizing Quartz a bit more by editing \`quartz.config.ts\`
-  • Running \`npx quartz build --serve\` to preview your Quartz locally
   • Hosting your Quartz online (see: https://quartz.jzhao.xyz/hosting)
 `)
 }
@@ -315,169 +305,7 @@ export async function handleBuild(argv) {
     clientRefresh()
   }
 
-  if (argv.serve) {
-    const connections = []
-    const clientRefresh = () => connections.forEach((conn) => conn.send("rebuild"))
-
-    if (argv.baseDir !== "" && !argv.baseDir.startsWith("/")) {
-      argv.baseDir = "/" + argv.baseDir
-    }
-
-    await build(clientRefresh)
-    const server = http.createServer(async (req, res) => {
-      if (argv.baseDir && !req.url?.startsWith(argv.baseDir)) {
-        console.log(
-          chalk.red(
-            `[404] ${req.url} (warning: link outside of site, this is likely a Quartz bug)`,
-          ),
-        )
-        res.writeHead(404)
-        res.end()
-        return
-      }
-
-      // strip baseDir prefix
-      req.url = req.url?.slice(argv.baseDir.length)
-
-      const serve = async () => {
-        const release = await buildMutex.acquire()
-        await serveHandler(req, res, {
-          public: argv.output,
-          directoryListing: false,
-          headers: [
-            {
-              source: "**/*.*",
-              headers: [{ key: "Content-Disposition", value: "inline" }],
-            },
-          ],
-        })
-        const status = res.statusCode
-        const statusString =
-          status >= 200 && status < 300 ? chalk.green(`[${status}]`) : chalk.red(`[${status}]`)
-        console.log(statusString + chalk.grey(` ${argv.baseDir}${req.url}`))
-        release()
-      }
-
-      const redirect = (newFp) => {
-        newFp = argv.baseDir + newFp
-        res.writeHead(302, {
-          Location: newFp,
-        })
-        console.log(chalk.yellow("[302]") + chalk.grey(` ${argv.baseDir}${req.url} -> ${newFp}`))
-        res.end()
-      }
-
-      let fp = req.url?.split("?")[0] ?? "/"
-
-      // handle redirects
-      if (fp.endsWith("/")) {
-        // /trailing/
-        // does /trailing/index.html exist? if so, serve it
-        const indexFp = path.posix.join(fp, "index.html")
-        if (fs.existsSync(path.posix.join(argv.output, indexFp))) {
-          req.url = fp
-          return serve()
-        }
-
-        // does /trailing.html exist? if so, redirect to /trailing
-        let base = fp.slice(0, -1)
-        if (path.extname(base) === "") {
-          base += ".html"
-        }
-        if (fs.existsSync(path.posix.join(argv.output, base))) {
-          return redirect(fp.slice(0, -1))
-        }
-      } else {
-        // /regular
-        // does /regular.html exist? if so, serve it
-        let base = fp
-        if (path.extname(base) === "") {
-          base += ".html"
-        }
-        if (fs.existsSync(path.posix.join(argv.output, base))) {
-          req.url = fp
-          return serve()
-        }
-
-        // does /regular/index.html exist? if so, redirect to /regular/
-        let indexFp = path.posix.join(fp, "index.html")
-        if (fs.existsSync(path.posix.join(argv.output, indexFp))) {
-          return redirect(fp + "/")
-        }
-      }
-
-      return serve()
-    })
-    server.listen(argv.port)
-    const wss = new WebSocketServer({ port: argv.wsPort })
-    wss.on("connection", (ws) => connections.push(ws))
-    console.log(
-      chalk.cyan(
-        `Started a Quartz server listening at http://localhost:${argv.port}${argv.baseDir}`,
-      ),
-    )
-    console.log("hint: exit with ctrl+c")
-    chokidar
-      .watch(["**/*.ts", "**/*.tsx", "**/*.scss", "package.json"], {
-        ignoreInitial: true,
-      })
-      .on("all", async () => {
-        build(clientRefresh)
-      })
-  } else {
-    await build(() => {})
-    ctx.dispose()
-  }
+  await build(() => {})
+  ctx.dispose()
 }
 
-/**
- * Handles `npx quartz update`
- * @param {*} argv arguments for `update`
- */
-export async function handleUpdate(argv) {
-  const contentFolder = path.join(cwd, argv.directory)
-  console.log(chalk.bgGreen.black(`\n Quartz v${version} \n`))
-  console.log("Backing up your content")
-  execSync(
-    `git remote show upstream || git remote add upstream https://github.com/jackyzha0/quartz.git`,
-  )
-  await stashContentFolder(contentFolder)
-  console.log(
-    "Pulling updates... you may need to resolve some `git` conflicts if you've made changes to components or plugins.",
-  )
-
-  try {
-    gitPull(UPSTREAM_NAME, QUARTZ_SOURCE_BRANCH)
-  } catch {
-    console.log(chalk.red("An error occurred above while pulling updates."))
-    await popContentFolder(contentFolder)
-    return
-  }
-
-  await popContentFolder(contentFolder)
-  console.log("Ensuring dependencies are up to date")
-
-  /*
-  On Windows, if the command `npm` is really `npm.cmd', this call fails
-  as it will be unable to find `npm`. This is often the case on systems
-  where `npm` is installed via a package manager.
-
-  This means `npx quartz update` will not actually update dependencies
-  on Windows, without a manual `npm i` from the caller.
-
-  However, by spawning a shell, we are able to call `npm.cmd`.
-  See: https://nodejs.org/api/child_process.html#spawning-bat-and-cmd-files-on-windows
-  */
-
-  const opts = { stdio: "inherit" }
-  if (process.platform === "win32") {
-    opts.shell = true
-  }
-
-  const res = spawnSync("npm", ["i"], opts)
-  if (res.status === 0) {
-    console.log(chalk.green("Done!"))
-  } else {
-    console.log(chalk.red("An error occurred above while installing dependencies."))
-  }
-}
