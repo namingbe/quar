@@ -4,7 +4,6 @@ import { readFileSync } from "fs"
 /**
  * All constants relating to helpers or handlers
  */
-export const ORIGIN_NAME = "origin"
 export const UPSTREAM_NAME = "upstream"
 export const QUARTZ_SOURCE_BRANCH = "v4"
 export const cwd = process.cwd()

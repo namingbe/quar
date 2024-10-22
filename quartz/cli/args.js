@@ -34,30 +34,6 @@ export const CreateArgv = {
   },
 }
 
-export const SyncArgv = {
-  ...CommonArgv,
-  commit: {
-    boolean: true,
-    default: true,
-    describe: "create a git commit for your unsaved changes",
-  },
-  message: {
-    string: true,
-    alias: ["m"],
-    describe: "option to override the default Quartz commit message",
-  },
-  push: {
-    boolean: true,
-    default: true,
-    describe: "push updates to your Quartz fork",
-  },
-  pull: {
-    boolean: true,
-    default: true,
-    describe: "pull updates from your Quartz fork",
-  },
-}
-
 export const BuildArgv = {
   ...CommonArgv,
   output: {
