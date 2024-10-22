@@ -23,7 +23,7 @@ export const Static: QuartzEmitterPlugin = () => ({
 
     return graph
   },
-  async emit({ argv, cfg }, _content, _resources): Promise<FilePath[]> {
+  async emit(argv, cfg, _content, _resources): Promise<FilePath[]> {
     const staticPath = joinSegments(QUARTZ, "static")
     const fps = await glob("**", staticPath, cfg.configuration.ignorePatterns)
     await fs.promises.cp(staticPath, joinSegments(argv.output, "static"), {

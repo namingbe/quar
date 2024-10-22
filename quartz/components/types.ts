@@ -6,7 +6,6 @@ import { Node } from "hast"
 import { BuildCtx } from "../util/ctx"
 
 export type QuartzComponentProps = {
-  ctx: BuildCtx
   externalResources: StaticResources
   fileData: QuartzPluginData
   cfg: GlobalConfiguration

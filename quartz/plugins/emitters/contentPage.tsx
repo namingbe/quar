@@ -94,8 +94,7 @@ export const ContentPage: QuartzEmitterPlugin<Partial<FullPageLayout>> = (userOp
 
       return graph
     },
-    async emit(ctx, content, resources): Promise<FilePath[]> {
-      const cfg = ctx.cfg.configuration
+    async emit(argv, cfg, content, resources): Promise<FilePath[]> {
       const fps: FilePath[] = []
       const allFiles = content.map((c) => c[1].data)
 
@@ -108,18 +107,18 @@ export const ContentPage: QuartzEmitterPlugin<Partial<FullPageLayout>> = (userOp
 
         const externalResources = pageResources(pathToRoot(slug), resources)
         const componentData: QuartzComponentProps = {
-          ctx,
+          argv,
           fileData: file.data,
           externalResources,
-          cfg,
+          cfg: cfg.configuration,
           children: [],
           tree,
           allFiles,
         }
 
-        const content = renderPage(cfg, slug, componentData, opts, externalResources)
+        const content = renderPage(cfg.configuration, slug, componentData, opts, externalResources)
         const fp = await write({
-          ctx,
+          argv,
           content,
           slug,
           ext: ".html",
@@ -128,10 +127,10 @@ export const ContentPage: QuartzEmitterPlugin<Partial<FullPageLayout>> = (userOp
         fps.push(fp)
       }
 
-      if (!containsIndex && !ctx.argv.fastRebuild) {
+      if (!containsIndex && !argv.fastRebuild) {
         console.log(
           chalk.yellow(
-            `\nWarning: you seem to be missing an \`index.md\` home page file at the root of your \`${ctx.argv.directory}\` folder. This may cause errors when deploying.`,
+            `\nWarning: you seem to be missing an \`index.md\` home page file at the root of your \`${argv.directory}\` folder. This may cause errors when deploying.`,
           ),
         )
       }

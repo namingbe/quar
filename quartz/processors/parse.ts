@@ -113,21 +113,20 @@ export function createFileParser(argv: Argv, cfg: QuartzConfig, fps: FilePath[])
 
 const clamp = (num: number, min: number, max: number) =>
   Math.min(Math.max(Math.round(num), min), max)
-export async function parseMarkdown(ctx: BuildCtx, fps: FilePath[]): Promise<ProcessedContent[]> {
-  const { argv } = ctx
+export async function parseMarkdown(argv: Argv, cfg: QuartzConfig, allSlugs: FullSlug[], fps: FilePath[]): Promise<ProcessedContent[]> {
   const perf = new PerfTimer()
   const log = new QuartzLogger(argv.verbose)
 
   // rough heuristics: 128 gives enough time for v8 to JIT and optimize parsing code paths
   const CHUNK_SIZE = 128
-  const concurrency = ctx.argv.concurrency ?? clamp(fps.length / CHUNK_SIZE, 1, 4)
+  const concurrency = argv.concurrency ?? clamp(fps.length / CHUNK_SIZE, 1, 4)
 
   let res: ProcessedContent[] = []
   log.start(`Parsing input files using ${concurrency} threads`)
   if (concurrency === 1) {
     try {
-      const processor = createProcessor(ctx.cfg, ctx.allSlugs)
-      const parse = createFileParser(ctx.argv, ctx.cfg, fps)
+      const processor = createProcessor(cfg, allSlugs)
+      const parse = createFileParser(argv, cfg, fps)
       res = await parse(processor)
     } catch (error) {
       log.end()
@@ -143,7 +142,7 @@ export async function parseMarkdown(ctx: BuildCtx, fps: FilePath[]): Promise<Pro
 
     const childPromises: WorkerPromise<ProcessedContent[]>[] = []
     for (const chunk of chunks(fps, CHUNK_SIZE)) {
-      childPromises.push(pool.exec("parseFiles", [argv, chunk, ctx.allSlugs]))
+      childPromises.push(pool.exec("parseFiles", [argv, chunk, allSlugs]))
     }
 
     const results: ProcessedContent[][] = await WorkerPromise.all(childPromises).catch((err) => {

@@ -71,10 +71,9 @@ export const TagPage: QuartzEmitterPlugin<Partial<TagPageOptions>> = (userOpts) 
 
       return graph
     },
-    async emit(ctx, content, resources): Promise<FilePath[]> {
+    async emit(argv, cfg, content, resources): Promise<FilePath[]> {
       const fps: FilePath[] = []
       const allFiles = content.map((c) => c[1].data)
-      const cfg = ctx.cfg.configuration
 
       const tags: Set<string> = new Set(
         allFiles.flatMap((data) => data.frontmatter?.tags ?? []).flatMap(getAllSegmentPrefixes),
@@ -87,8 +86,8 @@ export const TagPage: QuartzEmitterPlugin<Partial<TagPageOptions>> = (userOpts) 
         [...tags].map((tag) => {
           const title =
             tag === "index"
-              ? i18n(cfg.locale).pages.tagContent.tagIndex
-              : `${i18n(cfg.locale).pages.tagContent.tag}: ${tag}`
+              ? i18n(cfg.configuration.locale).pages.tagContent.tagIndex
+              : `${i18n(cfg.configuration.locale).pages.tagContent.tag}: ${tag}`
           return [
             tag,
             defaultProcessedContent({
@@ -114,18 +113,18 @@ export const TagPage: QuartzEmitterPlugin<Partial<TagPageOptions>> = (userOpts) 
         const externalResources = pageResources(pathToRoot(slug), resources)
         const [tree, file] = tagDescriptions[tag]
         const componentData: QuartzComponentProps = {
-          ctx,
+          argv,
           fileData: file.data,
           externalResources,
-          cfg,
+          cfg: cfg.configuration,
           children: [],
           tree,
           allFiles,
         }
 
-        const content = renderPage(cfg, slug, componentData, opts, externalResources)
+        const content = renderPage(cfg.configuration, slug, componentData, opts, externalResources)
         const fp = await write({
-          ctx,
+          argv,
           content,
           slug: file.data.slug!,
           ext: ".html",

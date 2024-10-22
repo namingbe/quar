@@ -113,13 +113,12 @@ export const ContentIndex: QuartzEmitterPlugin<Partial<Options>> = (opts) => {
 
       return graph
     },
-    async emit(ctx, content, _resources) {
-      const cfg = ctx.cfg.configuration
+    async emit(argv, cfg, content, _resources) {
       const emitted: FilePath[] = []
       const linkIndex: ContentIndex = new Map()
       for (const [tree, file] of content) {
         const slug = file.data.slug!
-        const date = getDate(ctx.cfg.configuration, file.data) ?? new Date()
+        const date = getDate(cfg.configuration, file.data) ?? new Date()
         if (opts?.includeEmptyFiles || (file.data.text && file.data.text !== "")) {
           linkIndex.set(slug, {
             title: file.data.frontmatter?.title!,
@@ -138,8 +137,8 @@ export const ContentIndex: QuartzEmitterPlugin<Partial<Options>> = (opts) => {
       if (opts?.enableSiteMap) {
         emitted.push(
           await write({
-            ctx,
-            content: generateSiteMap(cfg, linkIndex),
+            argv,
+            content: generateSiteMap(cfg.configuration, linkIndex),
             slug: "sitemap" as FullSlug,
             ext: ".xml",
           }),
@@ -149,8 +148,8 @@ export const ContentIndex: QuartzEmitterPlugin<Partial<Options>> = (opts) => {
       if (opts?.enableRSS) {
         emitted.push(
           await write({
-            ctx,
-            content: generateRSSFeed(cfg, linkIndex, opts.rssLimit),
+            argv,
+            content: generateRSSFeed(cfg.configuration, linkIndex, opts.rssLimit),
             slug: "index" as FullSlug,
             ext: ".xml",
           }),
@@ -171,7 +170,7 @@ export const ContentIndex: QuartzEmitterPlugin<Partial<Options>> = (opts) => {
 
       emitted.push(
         await write({
-          ctx,
+          argv,
           content: JSON.stringify(simplifiedIndex),
           slug: fp,
           ext: ".json",

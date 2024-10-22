@@ -3,7 +3,7 @@ import { StaticResources } from "../util/resources"
 import { ProcessedContent } from "./vfile"
 import { QuartzComponent } from "../components/types"
 import { FilePath, FullSlug } from "../util/path"
-import { BuildCtx } from "../util/ctx"
+import { Argv, BuildCtx } from "../util/ctx"
 import DepGraph from "../depgraph"
 import { QuartzConfig } from "../cfg"
 
@@ -30,7 +30,7 @@ export type QuartzFilterPlugin<Options extends OptionType = undefined> = (
 ) => QuartzFilterPluginInstance
 export type QuartzFilterPluginInstance = {
   name: string
-  shouldPublish(ctx: BuildCtx, content: ProcessedContent): boolean
+  shouldPublish(content: ProcessedContent): boolean
 }
 
 export type QuartzEmitterPlugin<Options extends OptionType = undefined> = (
@@ -38,8 +38,8 @@ export type QuartzEmitterPlugin<Options extends OptionType = undefined> = (
 ) => QuartzEmitterPluginInstance
 export type QuartzEmitterPluginInstance = {
   name: string
-  emit(ctx: BuildCtx, content: ProcessedContent[], resources: StaticResources): Promise<FilePath[]>
-  getQuartzComponents(ctx: BuildCtx): QuartzComponent[]
+  emit(argv: Argv, cfg: QuartzConfig, content: ProcessedContent[], resources: StaticResources): Promise<FilePath[]>
+  getQuartzComponents(): QuartzComponent[]
   getDependencyGraph?(
     ctx: BuildCtx,
     content: ProcessedContent[],

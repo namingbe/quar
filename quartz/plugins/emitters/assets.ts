@@ -36,7 +36,7 @@ export const Assets: QuartzEmitterPlugin = () => {
 
       return graph
     },
-    async emit({ argv, cfg }, _content, _resources): Promise<FilePath[]> {
+    async emit(argv, cfg, _content, _resources): Promise<FilePath[]> {
       const assetsPath = argv.output
       const fps = await filesToCopy(argv, cfg)
       const res: FilePath[] = []

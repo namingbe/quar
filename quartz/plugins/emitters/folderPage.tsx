@@ -69,10 +69,9 @@ export const FolderPage: QuartzEmitterPlugin<Partial<FolderPageOptions>> = (user
 
       return graph
     },
-    async emit(ctx, content, resources): Promise<FilePath[]> {
+    async emit(argv, cfg, content, resources): Promise<FilePath[]> {
       const fps: FilePath[] = []
       const allFiles = content.map((c) => c[1].data)
-      const cfg = ctx.cfg.configuration
 
       const folders: Set<SimpleSlug> = new Set(
         allFiles.flatMap((data) => {
@@ -91,7 +90,7 @@ export const FolderPage: QuartzEmitterPlugin<Partial<FolderPageOptions>> = (user
           defaultProcessedContent({
             slug: joinSegments(folder, "index") as FullSlug,
             frontmatter: {
-              title: `${i18n(cfg.locale).pages.folderContent.folder}: ${folder}`,
+              title: `${i18n(cfg.configuration.locale).pages.folderContent.folder}: ${folder}`,
               tags: [],
             },
           }),
@@ -110,18 +109,18 @@ export const FolderPage: QuartzEmitterPlugin<Partial<FolderPageOptions>> = (user
         const externalResources = pageResources(pathToRoot(slug), resources)
         const [tree, file] = folderDescriptions[folder]
         const componentData: QuartzComponentProps = {
-          ctx,
+          argv,
           fileData: file.data,
           externalResources,
-          cfg,
+          cfg: cfg.configuration,
           children: [],
           tree,
           allFiles,
         }
 
-        const content = renderPage(cfg, slug, componentData, opts, externalResources)
+        const content = renderPage(cfg.configuration, slug, componentData, opts, externalResources)
         const fp = await write({
-          ctx,
+          argv,
           content,
           slug,
           ext: ".html",

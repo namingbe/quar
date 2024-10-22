@@ -7,13 +7,13 @@ import spaRouterScript from "../../components/scripts/spa.inline"
 import popoverScript from "../../components/scripts/popover.inline"
 import styles from "../../styles/custom.scss"
 import popoverStyle from "../../components/styles/popover.scss"
-import { BuildCtx } from "../../util/ctx"
 import { QuartzComponent } from "../../components/types"
 import { googleFontHref, joinStyles } from "../../util/theme"
 import { Features, transform } from "lightningcss"
 import { transform as transpile } from "esbuild"
 import { write } from "./helpers"
 import DepGraph from "../../depgraph"
+import { QuartzConfig } from "../../cfg"
 
 type ComponentResources = {
   css: string[]
@@ -21,10 +21,10 @@ type ComponentResources = {
   afterDOMLoaded: string[]
 }
 
-function getComponentResources(ctx: BuildCtx): ComponentResources {
+function getComponentResources(cfg: QuartzConfig): ComponentResources {
   const allComponents: Set<QuartzComponent> = new Set()
-  for (const emitter of ctx.cfg.plugins.emitters) {
-    const components = emitter.getQuartzComponents(ctx)
+  for (const emitter of cfg.plugins.emitters) {
+    const components = emitter.getQuartzComponents()
     for (const component of components) {
       allComponents.add(component)
     }
@@ -68,17 +68,17 @@ async function joinScripts(scripts: string[]): Promise<string> {
   return res.code
 }
 
-function addGlobalPageResources(ctx: BuildCtx, componentResources: ComponentResources) {
-  const cfg = ctx.cfg.configuration
-
+function addGlobalPageResources(cfg: QuartzConfig, componentResources: ComponentResources) {
   // popovers
-  if (cfg.enablePopovers) {
+  if (cfg.configuration.enablePopovers) {
     componentResources.afterDOMLoaded.push(popoverScript)
     componentResources.css.push(popoverStyle)
   }
 
-  if (cfg.analytics?.provider === "google") {
-    const tagId = cfg.analytics.tagId
+  const analytics = cfg.configuration.analytics
+
+  if (analytics?.provider === "google") {
+    const tagId = analytics.tagId
     componentResources.afterDOMLoaded.push(`
       const gtagScript = document.createElement("script")
       gtagScript.src = "https://www.googletagmanager.com/gtag/js?id=${tagId}"
@@ -96,8 +96,8 @@ function addGlobalPageResources(ctx: BuildCtx, componentResources: ComponentReso
           page_location: location.href,
         });
       });`)
-  } else if (cfg.analytics?.provider === "plausible") {
-    const plausibleHost = cfg.analytics.host ?? "https://plausible.io"
+  } else if (analytics?.provider === "plausible") {
+    const plausibleHost = analytics.host ?? "https://plausible.io"
     componentResources.afterDOMLoaded.push(`
       const plausibleScript = document.createElement("script")
       plausibleScript.src = "${plausibleHost}/js/script.manual.js"
@@ -111,59 +111,59 @@ function addGlobalPageResources(ctx: BuildCtx, componentResources: ComponentReso
         plausible("pageview")
       })
     `)
-  } else if (cfg.analytics?.provider === "umami") {
+  } else if (analytics?.provider === "umami") {
     componentResources.afterDOMLoaded.push(`
       const umamiScript = document.createElement("script")
-      umamiScript.src = "${cfg.analytics.host ?? "https://analytics.umami.is"}/script.js"
-      umamiScript.setAttribute("data-website-id", "${cfg.analytics.websiteId}")
+      umamiScript.src = "${analytics.host ?? "https://analytics.umami.is"}/script.js"
+      umamiScript.setAttribute("data-website-id", "${analytics.websiteId}")
       umamiScript.async = true
 
       document.head.appendChild(umamiScript)
     `)
-  } else if (cfg.analytics?.provider === "goatcounter") {
+  } else if (analytics?.provider === "goatcounter") {
     componentResources.afterDOMLoaded.push(`
       const goatcounterScript = document.createElement("script")
-      goatcounterScript.src = "${cfg.analytics.scriptSrc ?? "https://gc.zgo.at/count.js"}"
+      goatcounterScript.src = "${analytics.scriptSrc ?? "https://gc.zgo.at/count.js"}"
       goatcounterScript.async = true
       goatcounterScript.setAttribute("data-goatcounter",
-        "https://${cfg.analytics.websiteId}.${cfg.analytics.host ?? "goatcounter.com"}/count")
+        "https://${analytics.websiteId}.${analytics.host ?? "goatcounter.com"}/count")
       document.head.appendChild(goatcounterScript)
     `)
-  } else if (cfg.analytics?.provider === "posthog") {
+  } else if (analytics?.provider === "posthog") {
     componentResources.afterDOMLoaded.push(`
       const posthogScript = document.createElement("script")
       posthogScript.innerHTML= \`!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-      posthog.init('${cfg.analytics.apiKey}',{api_host:'${cfg.analytics.host ?? "https://app.posthog.com"}'})\`
+      posthog.init('${analytics.apiKey}',{api_host:'${analytics.host ?? "https://app.posthog.com"}'})\`
       document.head.appendChild(posthogScript)
     `)
-  } else if (cfg.analytics?.provider === "tinylytics") {
-    const siteId = cfg.analytics.siteId
+  } else if (analytics?.provider === "tinylytics") {
+    const siteId = analytics.siteId
     componentResources.afterDOMLoaded.push(`
       const tinylyticsScript = document.createElement("script")
       tinylyticsScript.src = "https://tinylytics.app/embed/${siteId}.js"
       tinylyticsScript.defer = true
       document.head.appendChild(tinylyticsScript)
     `)
-  } else if (cfg.analytics?.provider === "cabin") {
+  } else if (analytics?.provider === "cabin") {
     componentResources.afterDOMLoaded.push(`
       const cabinScript = document.createElement("script")
-      cabinScript.src = "${cfg.analytics.host ?? "https://scripts.withcabin.com"}/hello.js"
+      cabinScript.src = "${analytics.host ?? "https://scripts.withcabin.com"}/hello.js"
       cabinScript.defer = true
       cabinScript.async = true
       document.head.appendChild(cabinScript)
     `)
-  } else if (cfg.analytics?.provider === "clarity") {
+  } else if (analytics?.provider === "clarity") {
     componentResources.afterDOMLoaded.push(`
       const clarityScript = document.createElement("script")
       clarityScript.innerHTML= \`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
       t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
       y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-      })(window, document, "clarity", "script", "${cfg.analytics.projectId}");\`
+      })(window, document, "clarity", "script", "${analytics.projectId}");\`
       document.head.appendChild(clarityScript)
     `)
   }
 
-  if (cfg.enableSPA) {
+  if (cfg.configuration.enableSPA) {
     componentResources.afterDOMLoaded.push(spaRouterScript)
   } else {
     componentResources.afterDOMLoaded.push(`
@@ -186,22 +186,21 @@ export const ComponentResources: QuartzEmitterPlugin = () => {
     async getDependencyGraph(_ctx, _content, _resources) {
       return new DepGraph<FilePath>()
     },
-    async emit(ctx, _content, _resources): Promise<FilePath[]> {
+    async emit(argv, cfg, _content, _resources): Promise<FilePath[]> {
       const promises: Promise<FilePath>[] = []
-      const cfg = ctx.cfg.configuration
       // component specific scripts and styles
-      const componentResources = getComponentResources(ctx)
+      const componentResources = getComponentResources(cfg)
       let googleFontsStyleSheet = ""
-      if (cfg.theme.fontOrigin === "local") {
+      if (cfg.configuration.theme.fontOrigin === "local") {
         // let the user do it themselves in css
-      } else if (cfg.theme.fontOrigin === "googleFonts" && !cfg.theme.cdnCaching) {
+      } else if (cfg.configuration.theme.fontOrigin === "googleFonts" && !cfg.configuration.theme.cdnCaching) {
         // when cdnCaching is true, we link to google fonts in Head.tsx
         let match
 
         const fontSourceRegex = /url\((https:\/\/fonts.gstatic.com\/s\/[^)]+\.(woff2|ttf))\)/g
 
         googleFontsStyleSheet = await (
-          await fetch(googleFontHref(ctx.cfg.configuration.theme))
+          await fetch(googleFontHref(cfg.configuration.theme))
         ).text()
 
         while ((match = fontSourceRegex.exec(googleFontsStyleSheet)) !== null) {
@@ -212,7 +211,7 @@ export const ComponentResources: QuartzEmitterPlugin = () => {
 
           googleFontsStyleSheet = googleFontsStyleSheet.replace(
             url,
-            `https://${cfg.baseUrl}/static/fonts/${filename}.ttf`,
+            `https://${cfg.configuration.baseUrl}/static/fonts/${filename}.ttf`,
           )
 
           promises.push(
@@ -225,7 +224,7 @@ export const ComponentResources: QuartzEmitterPlugin = () => {
               })
               .then((buf) =>
                 write({
-                  ctx,
+                  argv,
                   slug: joinSegments("static", "fonts", filename) as FullSlug,
                   ext: `.${ext}`,
                   content: Buffer.from(buf),
@@ -238,10 +237,10 @@ export const ComponentResources: QuartzEmitterPlugin = () => {
       // important that this goes *after* component scripts
       // as the "nav" event gets triggered here and we should make sure
       // that everyone else had the chance to register a listener for it
-      addGlobalPageResources(ctx, componentResources)
+      addGlobalPageResources(cfg, componentResources)
 
       const stylesheet = joinStyles(
-        ctx.cfg.configuration.theme,
+        cfg.configuration.theme,
         googleFontsStyleSheet,
         ...componentResources.css,
         styles,
@@ -253,7 +252,7 @@ export const ComponentResources: QuartzEmitterPlugin = () => {
 
       promises.push(
         write({
-          ctx,
+          argv,
           slug: "index" as FullSlug,
           ext: ".css",
           content: transform({
@@ -271,13 +270,13 @@ export const ComponentResources: QuartzEmitterPlugin = () => {
           }).code.toString(),
         }),
         write({
-          ctx,
+          argv,
           slug: "prescript" as FullSlug,
           ext: ".js",
           content: prescript,
         }),
         write({
-          ctx,
+          argv,
           slug: "postscript" as FullSlug,
           ext: ".js",
           content: postscript,

@@ -34,8 +34,7 @@ export const AliasRedirects: QuartzEmitterPlugin = () => ({
 
     return graph
   },
-  async emit(ctx, content, _resources): Promise<FilePath[]> {
-    const { argv } = ctx
+  async emit(argv, cfg, content, _resources): Promise<FilePath[]> {
     const fps: FilePath[] = []
 
     for (const [_tree, file] of content) {
@@ -56,7 +55,7 @@ export const AliasRedirects: QuartzEmitterPlugin = () => ({
 
         const redirUrl = resolveRelative(slug, file.data.slug!)
         const fp = await write({
-          ctx,
+          argv,
           content: `
             <!DOCTYPE html>
             <html lang="en-us">
