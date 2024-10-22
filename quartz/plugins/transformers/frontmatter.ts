@@ -44,7 +44,7 @@ export const FrontMatter: QuartzTransformerPlugin<Partial<Options>> = (userOpts)
   const opts = { ...defaultOptions, ...userOpts }
   return {
     name: "FrontMatter",
-    markdownPlugins({ cfg }) {
+    markdownPlugins(cfg) {
       return [
         [remarkFrontmatter, ["yaml", "toml"]],
         () => {

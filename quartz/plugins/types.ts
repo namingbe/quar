@@ -2,9 +2,10 @@ import { PluggableList } from "unified"
 import { StaticResources } from "../util/resources"
 import { ProcessedContent } from "./vfile"
 import { QuartzComponent } from "../components/types"
-import { FilePath } from "../util/path"
+import { FilePath, FullSlug } from "../util/path"
 import { BuildCtx } from "../util/ctx"
 import DepGraph from "../depgraph"
+import { QuartzConfig } from "../cfg"
 
 export interface PluginTypes {
   transformers: QuartzTransformerPluginInstance[]
@@ -19,8 +20,8 @@ export type QuartzTransformerPlugin<Options extends OptionType = undefined> = (
 export type QuartzTransformerPluginInstance = {
   name: string
   textTransform?: (ctx: BuildCtx, src: string | Buffer) => string | Buffer
-  markdownPlugins?: (ctx: BuildCtx) => PluggableList
-  htmlPlugins?: (ctx: BuildCtx) => PluggableList
+  markdownPlugins?: (cfg: QuartzConfig) => PluggableList
+  htmlPlugins?: (cfg: QuartzConfig, allSlugs: FullSlug[]) => PluggableList
   externalResources?: (ctx: BuildCtx) => Partial<StaticResources>
 }
 

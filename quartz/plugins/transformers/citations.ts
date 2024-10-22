@@ -21,7 +21,7 @@ export const Citations: QuartzTransformerPlugin<Partial<Options>> = (userOpts) =
   const opts = { ...defaultOptions, ...userOpts }
   return {
     name: "Citations",
-    htmlPlugins(ctx) {
+    htmlPlugins(cfg) {
       const plugins: PluggableList = []
 
       // Add rehype-citation to the list of plugins
@@ -32,7 +32,7 @@ export const Citations: QuartzTransformerPlugin<Partial<Options>> = (userOpts) =
           suppressBibliography: opts.suppressBibliography,
           linkCitations: opts.linkCitations,
           csl: opts.csl,
-          lang: ctx.cfg.configuration.locale ?? "en-US",
+          lang: cfg.configuration.locale ?? "en-US",
         },
       ])
 

@@ -208,7 +208,7 @@ export const ObsidianFlavoredMarkdown: QuartzTransformerPlugin<Partial<Options>>
 
       return src
     },
-    markdownPlugins(_ctx) {
+    markdownPlugins() {
       const plugins: PluggableList = []
 
       // regex replacements

@@ -7,16 +7,17 @@ import { Root as HTMLRoot } from "hast"
 import { ProcessedContent } from "../plugins/vfile"
 import { PerfTimer } from "../util/perf"
 import { read } from "to-vfile"
-import { FilePath, QUARTZ, slugifyFilePath } from "../util/path"
+import { FilePath, FullSlug, QUARTZ, slugifyFilePath } from "../util/path"
 import path from "path"
 import workerpool, { Promise as WorkerPromise } from "workerpool"
 import { QuartzLogger } from "../util/log"
 import { trace } from "../util/trace"
 import { BuildCtx } from "../util/ctx"
+import { QuartzConfig } from "../cfg"
 
 export type QuartzProcessor = Processor<MDRoot, MDRoot, HTMLRoot>
-export function createProcessor(ctx: BuildCtx): QuartzProcessor {
-  const transformers = ctx.cfg.plugins.transformers
+export function createProcessor(cfg: QuartzConfig, allSlugs: FullSlug[]): QuartzProcessor {
+  const transformers = cfg.plugins.transformers
 
   return (
     unified()
@@ -26,12 +27,12 @@ export function createProcessor(ctx: BuildCtx): QuartzProcessor {
       .use(
         transformers
           .filter((p) => p.markdownPlugins)
-          .flatMap((plugin) => plugin.markdownPlugins!(ctx)),
+          .flatMap((plugin) => plugin.markdownPlugins!(cfg)),
       )
       // MD AST -> HTML AST
       .use(remarkRehype, { allowDangerousHtml: true })
       // HTML AST -> HTML AST transforms
-      .use(transformers.filter((p) => p.htmlPlugins).flatMap((plugin) => plugin.htmlPlugins!(ctx)))
+      .use(transformers.filter((p) => p.htmlPlugins).flatMap((plugin) => plugin.htmlPlugins!(cfg, allSlugs)))
   )
 }
 
@@ -126,7 +127,7 @@ export async function parseMarkdown(ctx: BuildCtx, fps: FilePath[]): Promise<Pro
   log.start(`Parsing input files using ${concurrency} threads`)
   if (concurrency === 1) {
     try {
-      const processor = createProcessor(ctx)
+      const processor = createProcessor(ctx.cfg, ctx.allSlugs)
       const parse = createFileParser(ctx, fps)
       res = await parse(processor)
     } catch (error) {

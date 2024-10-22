@@ -19,7 +19,7 @@ export async function parseFiles(
     argv,
     allSlugs,
   }
-  const processor = createProcessor(ctx)
+  const processor = createProcessor(cfg, allSlugs)
   const parse = createFileParser(ctx, fps)
   return parse(processor)
 }

@@ -36,7 +36,7 @@ export const CrawlLinks: QuartzTransformerPlugin<Partial<Options>> = (userOpts) 
   const opts = { ...defaultOptions, ...userOpts }
   return {
     name: "LinkProcessing",
-    htmlPlugins(ctx) {
+    htmlPlugins(_, allSlugs) {
       return [
         () => {
           return (tree: Root, file) => {
@@ -45,7 +45,7 @@ export const CrawlLinks: QuartzTransformerPlugin<Partial<Options>> = (userOpts) 
 
             const transformOptions: TransformOptions = {
               strategy: opts.markdownLinkResolution,
-              allSlugs: ctx.allSlugs,
+              allSlugs: allSlugs,
             }
 
             visit(tree, "element", (node, _index, _parent) => {
