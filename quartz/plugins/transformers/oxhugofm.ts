@@ -51,7 +51,7 @@ export const OxHugoFlavouredMarkdown: QuartzTransformerPlugin<Partial<Options>> 
   const opts = { ...defaultOptions, ...userOpts }
   return {
     name: "OxHugoFlavouredMarkdown",
-    textTransform(_ctx, src) {
+    textTransform(src) {
       if (opts.wikilinks) {
         src = src.toString()
         src = src.replaceAll(relrefRegex, (value, ...capture) => {

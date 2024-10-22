@@ -12,7 +12,7 @@ import path from "path"
 import workerpool, { Promise as WorkerPromise } from "workerpool"
 import { QuartzLogger } from "../util/log"
 import { trace } from "../util/trace"
-import { BuildCtx } from "../util/ctx"
+import { Argv, BuildCtx } from "../util/ctx"
 import { QuartzConfig } from "../cfg"
 
 export type QuartzProcessor = Processor<MDRoot, MDRoot, HTMLRoot>
@@ -74,8 +74,7 @@ async function transpileWorkerScript() {
   })
 }
 
-export function createFileParser(ctx: BuildCtx, fps: FilePath[]) {
-  const { argv, cfg } = ctx
+export function createFileParser(argv: Argv, cfg: QuartzConfig, fps: FilePath[]) {
   return async (processor: QuartzProcessor) => {
     const res: ProcessedContent[] = []
     for (const fp of fps) {
@@ -88,7 +87,7 @@ export function createFileParser(ctx: BuildCtx, fps: FilePath[]) {
 
         // Text -> Text transforms
         for (const plugin of cfg.plugins.transformers.filter((p) => p.textTransform)) {
-          file.value = plugin.textTransform!(ctx, file.value.toString())
+          file.value = plugin.textTransform!(file.value.toString())
         }
 
         // base data properties that plugins may use
@@ -128,7 +127,7 @@ export async function parseMarkdown(ctx: BuildCtx, fps: FilePath[]): Promise<Pro
   if (concurrency === 1) {
     try {
       const processor = createProcessor(ctx.cfg, ctx.allSlugs)
-      const parse = createFileParser(ctx, fps)
+      const parse = createFileParser(ctx.argv, ctx.cfg, fps)
       res = await parse(processor)
     } catch (error) {
       log.end()
@@ -144,7 +143,7 @@ export async function parseMarkdown(ctx: BuildCtx, fps: FilePath[]): Promise<Pro
 
     const childPromises: WorkerPromise<ProcessedContent[]>[] = []
     for (const chunk of chunks(fps, CHUNK_SIZE)) {
-      childPromises.push(pool.exec("parseFiles", [ctx.buildId, argv, chunk, ctx.allSlugs]))
+      childPromises.push(pool.exec("parseFiles", [argv, chunk, ctx.allSlugs]))
     }
 
     const results: ProcessedContent[][] = await WorkerPromise.all(childPromises).catch((err) => {

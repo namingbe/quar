@@ -19,7 +19,7 @@ export type QuartzTransformerPlugin<Options extends OptionType = undefined> = (
 ) => QuartzTransformerPluginInstance
 export type QuartzTransformerPluginInstance = {
   name: string
-  textTransform?: (ctx: BuildCtx, src: string | Buffer) => string | Buffer
+  textTransform?: (src: string | Buffer) => string | Buffer
   markdownPlugins?: (cfg: QuartzConfig) => PluggableList
   htmlPlugins?: (cfg: QuartzConfig, allSlugs: FullSlug[]) => PluggableList
   externalResources?: (ctx: BuildCtx) => Partial<StaticResources>

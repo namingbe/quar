@@ -20,13 +20,6 @@ function newBuildId() {
 }
 
 async function buildQuartz(argv: Argv, mut: Mutex) {
-  const ctx: BuildCtx = {
-    buildId: newBuildId(),
-    argv,
-    cfg,
-    allSlugs: [],
-  }
-
   const perf = new PerfTimer()
   const output = argv.output
 
@@ -53,8 +46,14 @@ async function buildQuartz(argv: Argv, mut: Mutex) {
   )
 
   const filePaths = fps.map((fp) => joinSegments(argv.directory, fp) as FilePath)
-  ctx.allSlugs = allFiles.map((fp) => slugifyFilePath(fp as FilePath))
+  const allSlugs = allFiles.map((fp) => slugifyFilePath(fp as FilePath))
 
+  const ctx: BuildCtx = {
+    buildId: newBuildId(),
+    argv,
+    cfg,
+    allSlugs,
+  }
   const parsedFiles = await parseMarkdown(ctx, filePaths)
   const filteredContent = filterContent(ctx, parsedFiles)
 
