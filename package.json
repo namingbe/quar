@@ -14,7 +14,7 @@
   "scripts": {
     "quartz": "./quartz/bootstrap-cli.mjs",
     "check": "tsc --noEmit",
-    "test": "tsx ./quartz/util/path.test.ts && tsx ./quartz/depgraph.test.ts",
+    "test": "tsx ./quartz/util/path.test.ts",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1"
   },
   "engines": {
