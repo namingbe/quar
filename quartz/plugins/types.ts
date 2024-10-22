@@ -3,8 +3,7 @@ import { StaticResources } from "../util/resources"
 import { ProcessedContent } from "./vfile"
 import { QuartzComponent } from "../components/types"
 import { FilePath, FullSlug } from "../util/path"
-import { Argv, BuildCtx } from "../util/ctx"
-import DepGraph from "../depgraph"
+import { Argv } from "../util/ctx"
 import { QuartzConfig } from "../cfg"
 
 export interface PluginTypes {
@@ -22,7 +21,7 @@ export type QuartzTransformerPluginInstance = {
   textTransform?: (src: string | Buffer) => string | Buffer
   markdownPlugins?: (cfg: QuartzConfig) => PluggableList
   htmlPlugins?: (cfg: QuartzConfig, allSlugs: FullSlug[]) => PluggableList
-  externalResources?: (ctx: BuildCtx) => Partial<StaticResources>
+  externalResources?: () => Partial<StaticResources>
 }
 
 export type QuartzFilterPlugin<Options extends OptionType = undefined> = (
@@ -40,9 +39,4 @@ export type QuartzEmitterPluginInstance = {
   name: string
   emit(argv: Argv, cfg: QuartzConfig, content: ProcessedContent[], resources: StaticResources): Promise<FilePath[]>
   getQuartzComponents(): QuartzComponent[]
-  getDependencyGraph?(
-    ctx: BuildCtx,
-    content: ProcessedContent[],
-    resources: StaticResources,
-  ): Promise<DepGraph<FilePath>>
 }

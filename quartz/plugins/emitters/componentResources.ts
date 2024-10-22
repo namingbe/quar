@@ -12,7 +12,6 @@ import { googleFontHref, joinStyles } from "../../util/theme"
 import { Features, transform } from "lightningcss"
 import { transform as transpile } from "esbuild"
 import { write } from "./helpers"
-import DepGraph from "../../depgraph"
 import { QuartzConfig } from "../../cfg"
 
 type ComponentResources = {
@@ -182,9 +181,6 @@ export const ComponentResources: QuartzEmitterPlugin = () => {
     name: "ComponentResources",
     getQuartzComponents() {
       return []
-    },
-    async getDependencyGraph(_ctx, _content, _resources) {
-      return new DepGraph<FilePath>()
     },
     async emit(argv, cfg, _content, _resources): Promise<FilePath[]> {
       const promises: Promise<FilePath>[] = []

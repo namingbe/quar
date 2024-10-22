@@ -12,7 +12,7 @@ import path from "path"
 import workerpool, { Promise as WorkerPromise } from "workerpool"
 import { QuartzLogger } from "../util/log"
 import { trace } from "../util/trace"
-import { Argv, BuildCtx } from "../util/ctx"
+import { Argv } from "../util/ctx"
 import { QuartzConfig } from "../cfg"
 
 export type QuartzProcessor = Processor<MDRoot, MDRoot, HTMLRoot>

@@ -9,15 +9,11 @@ import { filterContent } from "./processors/filter"
 import { emitContent } from "./processors/emit"
 import cfg from "../quartz.config"
 import { FilePath, joinSegments, slugifyFilePath } from "./util/path"
-import { Argv, BuildCtx } from "./util/ctx"
+import { Argv } from "./util/ctx"
 import { glob } from "./util/glob"
 import { trace } from "./util/trace"
 import { options } from "./util/sourcemap"
 import { Mutex } from "async-mutex"
-
-function newBuildId() {
-  return Math.random().toString(36).substring(2, 8)
-}
 
 async function buildQuartz(argv: Argv, mut: Mutex) {
   const perf = new PerfTimer()
@@ -48,16 +44,10 @@ async function buildQuartz(argv: Argv, mut: Mutex) {
   const filePaths = fps.map((fp) => joinSegments(argv.directory, fp) as FilePath)
   const allSlugs = allFiles.map((fp) => slugifyFilePath(fp as FilePath))
 
-  const ctx: BuildCtx = {
-    buildId: newBuildId(),
-    argv,
-    cfg,
-    allSlugs,
-  }
   const parsedFiles = await parseMarkdown(argv, cfg, allSlugs, filePaths)
   const filteredContent = filterContent(argv, cfg, parsedFiles)
 
-  await emitContent(ctx, filteredContent)
+  await emitContent(argv, cfg, filteredContent)
   console.log(chalk.green(`Done processing ${fps.length} files in ${perf.timeSince()}`))
   release()
 }

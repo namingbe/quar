@@ -3,7 +3,6 @@ import { StaticResources } from "../util/resources"
 import { QuartzPluginData } from "../plugins/vfile"
 import { GlobalConfiguration } from "../cfg"
 import { Node } from "hast"
-import { BuildCtx } from "../util/ctx"
 
 export type QuartzComponentProps = {
   externalResources: StaticResources

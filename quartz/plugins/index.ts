@@ -1,15 +1,15 @@
 import { StaticResources } from "../util/resources"
 import { FilePath, FullSlug } from "../util/path"
-import { BuildCtx } from "../util/ctx"
+import { QuartzConfig } from "../cfg"
 
-export function getStaticResourcesFromPlugins(ctx: BuildCtx) {
+export function getStaticResourcesFromPlugins(cfg: QuartzConfig) {
   const staticResources: StaticResources = {
     css: [],
     js: [],
   }
 
-  for (const transformer of ctx.cfg.plugins.transformers) {
-    const res = transformer.externalResources ? transformer.externalResources(ctx) : {}
+  for (const transformer of cfg.plugins.transformers) {
+    const res = transformer.externalResources ? transformer.externalResources() : {}
     if (res?.js) {
       staticResources.js.push(...res.js)
     }
