@@ -42,11 +42,6 @@ export const BuildArgv = {
     default: "public",
     describe: "output folder for files",
   },
-  serve: {
-    boolean: true,
-    default: false,
-    describe: "run a local server to live-preview your Quartz",
-  },
   fastRebuild: {
     boolean: true,
     default: false,

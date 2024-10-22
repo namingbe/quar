@@ -5,7 +5,6 @@ export interface Argv {
   directory: string
   verbose: boolean
   output: string
-  serve: boolean
   fastRebuild: boolean
   port: number
   wsPort: number
