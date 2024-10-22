@@ -1,7 +1,7 @@
 import path from "path"
 import fs from "fs"
-import { Argv } from "../../util/ctx"
 import { FilePath, FullSlug, joinSegments } from "../../util/path"
+import { Argv } from "../../cfg"
 
 type WriteOptions = {
   argv: Argv,

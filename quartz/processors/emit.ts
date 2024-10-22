@@ -3,8 +3,7 @@ import { getStaticResourcesFromPlugins } from "../plugins"
 import { ProcessedContent } from "../plugins/vfile"
 import { QuartzLogger } from "../util/log"
 import { trace } from "../util/trace"
-import { Argv } from "../util/ctx"
-import { QuartzConfig } from "../cfg"
+import { Argv, QuartzConfig } from "../cfg"
 
 export async function emitContent(argv: Argv, cfg: QuartzConfig, content: ProcessedContent[]) {
   const perf = new PerfTimer()

@@ -73,16 +73,13 @@ export default ((userOpts?: Partial<Options>) => {
   }
 
   const Explorer: QuartzComponent = ({
-    ctx,
     cfg,
     allFiles,
     displayClass,
     fileData,
   }: QuartzComponentProps) => {
-    if (ctx.buildId !== lastBuildId) {
-      lastBuildId = ctx.buildId
-      constructFileTree(allFiles)
-    }
+    // todo: if costly, make conditional again
+    constructFileTree(allFiles)
 
     return (
       <div class={classNames(displayClass, "explorer")}>

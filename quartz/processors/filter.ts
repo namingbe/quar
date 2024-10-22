@@ -1,7 +1,6 @@
-import { Argv } from "../util/ctx"
 import { PerfTimer } from "../util/perf"
 import { ProcessedContent } from "../plugins/vfile"
-import { QuartzConfig } from "../cfg"
+import { Argv, QuartzConfig } from "../cfg"
 
 export function filterContent(argv: Argv, cfg: QuartzConfig, content: ProcessedContent[]): ProcessedContent[] {
   const perf = new PerfTimer()

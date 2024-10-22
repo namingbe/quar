@@ -3,8 +3,7 @@ import { StaticResources } from "../util/resources"
 import { ProcessedContent } from "./vfile"
 import { QuartzComponent } from "../components/types"
 import { FilePath, FullSlug } from "../util/path"
-import { Argv } from "../util/ctx"
-import { QuartzConfig } from "../cfg"
+import { Argv, QuartzConfig } from "../cfg"
 
 export interface PluginTypes {
   transformers: QuartzTransformerPluginInstance[]

@@ -9,11 +9,11 @@ import { filterContent } from "./processors/filter"
 import { emitContent } from "./processors/emit"
 import cfg from "../quartz.config"
 import { FilePath, joinSegments, slugifyFilePath } from "./util/path"
-import { Argv } from "./util/ctx"
 import { glob } from "./util/glob"
 import { trace } from "./util/trace"
 import { options } from "./util/sourcemap"
 import { Mutex } from "async-mutex"
+import { Argv } from "./cfg"
 
 async function buildQuartz(argv: Argv, mut: Mutex) {
   const perf = new PerfTimer()
