@@ -1,8 +1,9 @@
 import { PerfTimer } from "../util/perf"
 import { ProcessedContent } from "../plugins/vfile"
+import cfg from "../../quartz.config"
 import { Argv, QuartzConfig } from "../cfg"
 
-export function filterContent(argv: Argv, cfg: QuartzConfig, content: ProcessedContent[]): ProcessedContent[] {
+export function filterContent(argv: Argv, content: ProcessedContent[]): ProcessedContent[] {
   const perf = new PerfTimer()
   const initialLength = content.length
   for (const plugin of cfg.plugins.filters) {
