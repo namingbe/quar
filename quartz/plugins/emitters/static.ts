@@ -10,7 +10,7 @@ export const Static: QuartzEmitterPlugin = () => ({
   },
   async emit(argv, cfg, _content, _resources): Promise<FilePath[]> {
     const staticPath = joinSegments(QUARTZ, "static")
-    const fps = await glob("**", staticPath, cfg.configuration.ignorePatterns)
+    const fps = await glob("**", staticPath, [])
     await fs.promises.cp(staticPath, joinSegments(argv.output, "static"), {
       recursive: true,
       dereference: true,
