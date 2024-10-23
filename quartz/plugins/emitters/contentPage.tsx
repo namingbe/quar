@@ -71,7 +71,7 @@ export const ContentPage: QuartzEmitterPlugin<Partial<FullPageLayout>> = (userOp
         fps.push(fp)
       }
 
-      if (!containsIndex && !argv.fastRebuild) {
+      if (!containsIndex) {
         console.log(
           chalk.yellow(
             `\nWarning: you seem to be missing an \`index.md\` home page file at the root of your \`${argv.directory}\` folder. This may cause errors when deploying.`,
