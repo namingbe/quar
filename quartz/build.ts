@@ -15,22 +15,16 @@ import { Argv } from "./cfg"
 
 async function buildQuartz(argv: Argv) {
   console.time("all")
-  const output = argv.output
 
-  const pluginCount = Object.values(plugins).flat().length
-  const pluginNames = (key: "transformers" | "filters" | "emitters") =>
-    plugins[key].map((plugin) => plugin.name)
   if (argv.verbose) {
-    console.log(`Loaded ${pluginCount} plugins`)
-    console.log(`  Transformers: ${pluginNames("transformers").join(", ")}`)
-    console.log(`  Filters: ${pluginNames("filters").join(", ")}`)
-    console.log(`  Emitters: ${pluginNames("emitters").join(", ")}`)
+    console.log(`Loaded ${Object.values(plugins).flat().length} plugins`)
+    for (const type of ["transformers", "filters", "emitters"] as const) {
+      console.log(`  ${type}: ${plugins[type].map(plugin => plugin.name).join(", ")}`)
+    }
   }
 
-  // bro was timing rm -rf ? good lord
-  console.time("clean")
-  await rimraf(path.join(output, "*"), { glob: true })
-  console.timeEnd("clean")
+  // rm -rf output/*, but using a whole separate dependency?
+  await rimraf(path.join(argv.output, "*"), { glob: true })
 
   console.time("glob")
   const allFiles = await glob("**/*.*", argv.directory, [])
