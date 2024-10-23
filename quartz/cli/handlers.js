@@ -253,16 +253,8 @@ export async function handleBuild(argv) {
     ],
   })
 
-  let lastBuildMs = 0
   let cleanupBuild = null
   const build = async (clientRefresh) => {
-    const buildStart = new Date().getTime()
-    lastBuildMs = buildStart
-    if (lastBuildMs > buildStart) {
-      release()
-      return
-    }
-
     if (cleanupBuild) {
       await cleanupBuild()
       console.log(chalk.yellow("Detected a source code change, doing a hard rebuild..."))
@@ -273,7 +265,6 @@ export async function handleBuild(argv) {
       console.log(`Reason: ${chalk.grey(err)}`)
       process.exit(1)
     })
-    release()
 
     if (argv.bundleInfo) {
       const outputFileName = "quartz/.quartz-cache/transpiled-build.mjs"
