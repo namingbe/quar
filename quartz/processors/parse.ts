@@ -5,7 +5,6 @@ import { Processor, unified } from "unified"
 import { Root as MDRoot } from "remark-parse/lib"
 import { Root as HTMLRoot } from "hast"
 import { ProcessedContent } from "../plugins/vfile"
-import { PerfTimer } from "../util/perf"
 import { read } from "to-vfile"
 import { FilePath, FullSlug, QUARTZ, slugifyFilePath } from "../util/path"
 import path from "path"
@@ -79,7 +78,7 @@ export function createFileParser(argv: Argv, fps: FilePath[]) {
     const res: ProcessedContent[] = []
     for (const fp of fps) {
       try {
-        const perf = new PerfTimer()
+        if (argv.verbose) { console.time(`${fp}`) }
         const file = await read(fp)
 
         // strip leading and trailing whitespace
@@ -100,7 +99,8 @@ export function createFileParser(argv: Argv, fps: FilePath[]) {
         res.push([newAst, file])
 
         if (argv.verbose) {
-          console.log(`[process] ${fp} -> ${file.data.slug} (${perf.timeSince()})`)
+          console.log(`[process] ${fp} -> ${file.data.slug}`)
+          console.timeEnd(`${fp}`)
         }
       } catch (err) {
         trace(`\nFailed to process \`${fp}\``, err as Error)
@@ -114,7 +114,6 @@ export function createFileParser(argv: Argv, fps: FilePath[]) {
 const clamp = (num: number, min: number, max: number) =>
   Math.min(Math.max(Math.round(num), min), max)
 export async function parseMarkdown(argv: Argv, allSlugs: FullSlug[], fps: FilePath[]): Promise<ProcessedContent[]> {
-  const perf = new PerfTimer()
   const log = new QuartzLogger(argv.verbose)
 
   // rough heuristics: 128 gives enough time for v8 to JIT and optimize parsing code paths
@@ -154,6 +153,6 @@ export async function parseMarkdown(argv: Argv, allSlugs: FullSlug[], fps: FileP
     await pool.terminate()
   }
 
-  log.end(`Parsed ${res.length} Markdown files in ${perf.timeSince()}`)
+  log.end(`Parsed ${res.length} Markdown files`)
   return res
 }

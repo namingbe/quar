@@ -1,7 +1,6 @@
 import sourceMapSupport from "source-map-support"
 sourceMapSupport.install(options)
 import path from "path"
-import { PerfTimer } from "./util/perf"
 import { rimraf } from "rimraf"
 import chalk from "chalk"
 import { parseMarkdown } from "./processors/parse"
@@ -15,7 +14,7 @@ import { options } from "./util/sourcemap"
 import { Argv } from "./cfg"
 
 async function buildQuartz(argv: Argv) {
-  const perf = new PerfTimer()
+  console.time("all")
   const output = argv.output
 
   const pluginCount = Object.values(plugins).flat().length
@@ -28,16 +27,16 @@ async function buildQuartz(argv: Argv) {
     console.log(`  Emitters: ${pluginNames("emitters").join(", ")}`)
   }
 
-  perf.addEvent("clean")
+  // bro was timing rm -rf ? good lord
+  console.time("clean")
   await rimraf(path.join(output, "*"), { glob: true })
-  console.log(`Cleaned output directory \`${output}\` in ${perf.timeSince("clean")}`)
+  console.timeEnd("clean")
 
-  perf.addEvent("glob")
+  console.time("glob")
   const allFiles = await glob("**/*.*", argv.directory, [])
   const fps = allFiles.filter((fp) => fp.endsWith(".md")).sort()
-  console.log(
-    `Found ${fps.length} input files from \`${argv.directory}\` in ${perf.timeSince("glob")}`,
-  )
+  console.log(`Found ${fps.length} input files from \`${argv.directory}\``)
+  console.timeEnd("glob")
 
   const filePaths = fps.map((fp) => joinSegments(argv.directory, fp) as FilePath)
   const allSlugs = allFiles.map((fp) => slugifyFilePath(fp as FilePath))
@@ -46,7 +45,8 @@ async function buildQuartz(argv: Argv) {
   const filteredContent = filterContent(argv, parsedFiles)
 
   await emitContent(argv, filteredContent)
-  console.log(chalk.green(`Done processing ${fps.length} files in ${perf.timeSince()}`))
+  console.log(chalk.green(`Done processing ${fps.length} files`))
+  console.timeEnd("all")
 }
 
 export default async (argv: Argv) => {

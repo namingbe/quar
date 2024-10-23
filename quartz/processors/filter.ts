@@ -1,10 +1,8 @@
-import { PerfTimer } from "../util/perf"
 import { ProcessedContent } from "../plugins/vfile"
 import { plugins } from "../../quartz.config"
 import { Argv } from "../cfg"
 
 export function filterContent(argv: Argv, content: ProcessedContent[]): ProcessedContent[] {
-  const perf = new PerfTimer()
   const initialLength = content.length
   for (const plugin of plugins.filters) {
     const updatedContent = content.filter((item) => plugin.shouldPublish(item))
@@ -19,6 +17,6 @@ export function filterContent(argv: Argv, content: ProcessedContent[]): Processe
     content = updatedContent
   }
 
-  console.log(`Filtered out ${initialLength - content.length} files in ${perf.timeSince()}`)
+  console.log(`Filtered out ${initialLength - content.length} files`)
   return content
 }

@@ -1,4 +1,3 @@
-import { PerfTimer } from "../util/perf"
 import { getStaticResourcesFromPlugins } from "../plugins"
 import { ProcessedContent } from "../plugins/vfile"
 import { QuartzLogger } from "../util/log"
@@ -7,7 +6,6 @@ import { plugins } from "../../quartz.config"
 import { Argv } from "../cfg"
 
 export async function emitContent(argv: Argv, content: ProcessedContent[]) {
-  const perf = new PerfTimer()
   const log = new QuartzLogger(argv.verbose)
 
   log.start(`Emitting output files`)
@@ -29,5 +27,5 @@ export async function emitContent(argv: Argv, content: ProcessedContent[]) {
     }
   }
 
-  log.end(`Emitted ${emittedFiles} files to \`${argv.output}\` in ${perf.timeSince()}`)
+  log.end(`Emitted ${emittedFiles} files to \`${argv.output}\``)
 }
