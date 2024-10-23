@@ -23,8 +23,7 @@ export type QuartzTransformerPluginInstance = {
   externalResources?: () => Partial<StaticResources>
 }
 
-export type QuartzFilterPlugin<Options extends OptionType = undefined> = (
-  opts?: Options,
+export type QuartzFilterPlugin = (
 ) => QuartzFilterPluginInstance
 export type QuartzFilterPluginInstance = {
   name: string
