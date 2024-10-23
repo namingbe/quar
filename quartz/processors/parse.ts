@@ -74,7 +74,7 @@ async function transpileWorkerScript() {
   })
 }
 
-export function createFileParser(argv: Argv, cfg: QuartzConfig, fps: FilePath[]) {
+export function createFileParser(argv: Argv, fps: FilePath[]) {
   return async (processor: QuartzProcessor) => {
     const res: ProcessedContent[] = []
     for (const fp of fps) {
@@ -113,7 +113,7 @@ export function createFileParser(argv: Argv, cfg: QuartzConfig, fps: FilePath[])
 
 const clamp = (num: number, min: number, max: number) =>
   Math.min(Math.max(Math.round(num), min), max)
-export async function parseMarkdown(argv: Argv, cfg: QuartzConfig, allSlugs: FullSlug[], fps: FilePath[]): Promise<ProcessedContent[]> {
+export async function parseMarkdown(argv: Argv, allSlugs: FullSlug[], fps: FilePath[]): Promise<ProcessedContent[]> {
   const perf = new PerfTimer()
   const log = new QuartzLogger(argv.verbose)
 
@@ -126,7 +126,7 @@ export async function parseMarkdown(argv: Argv, cfg: QuartzConfig, allSlugs: Ful
   if (concurrency === 1) {
     try {
       const processor = createProcessor(allSlugs)
-      const parse = createFileParser(argv, cfg, fps)
+      const parse = createFileParser(argv, fps)
       res = await parse(processor)
     } catch (error) {
       log.end()

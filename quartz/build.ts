@@ -42,7 +42,7 @@ async function buildQuartz(argv: Argv) {
   const filePaths = fps.map((fp) => joinSegments(argv.directory, fp) as FilePath)
   const allSlugs = allFiles.map((fp) => slugifyFilePath(fp as FilePath))
 
-  const parsedFiles = await parseMarkdown(argv, cfg, allSlugs, filePaths)
+  const parsedFiles = await parseMarkdown(argv, allSlugs, filePaths)
   const filteredContent = filterContent(argv, cfg, parsedFiles)
 
   await emitContent(argv, cfg, filteredContent)
