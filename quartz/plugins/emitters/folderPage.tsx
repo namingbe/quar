@@ -4,7 +4,7 @@ import HeaderConstructor from "../../components/Header"
 import BodyConstructor from "../../components/Body"
 import { pageResources, renderPage } from "../../components/renderPage"
 import { ProcessedContent, QuartzPluginData, defaultProcessedContent } from "../vfile"
-import cfg from "../../../quartz.config"
+import { config } from "../../../quartz.config"
 import { FullPageLayout } from "../../cfg"
 import path from "path"
 import {
@@ -74,7 +74,7 @@ export const FolderPage: QuartzEmitterPlugin<Partial<FolderPageOptions>> = (user
           defaultProcessedContent({
             slug: joinSegments(folder, "index") as FullSlug,
             frontmatter: {
-              title: `${i18n(cfg.configuration.locale).pages.folderContent.folder}: ${folder}`,
+              title: `${i18n(config.locale).pages.folderContent.folder}: ${folder}`,
               tags: [],
             },
           }),
@@ -96,13 +96,13 @@ export const FolderPage: QuartzEmitterPlugin<Partial<FolderPageOptions>> = (user
           argv,
           fileData: file.data,
           externalResources,
-          cfg: cfg.configuration,
+          cfg: config,
           children: [],
           tree,
           allFiles,
         }
 
-        const content = renderPage(cfg.configuration, slug, componentData, opts, externalResources)
+        const content = renderPage(config, slug, componentData, opts, externalResources)
         const fp = await write({
           argv,
           content,

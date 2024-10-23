@@ -12,12 +12,12 @@ import path from "path"
 import workerpool, { Promise as WorkerPromise } from "workerpool"
 import { QuartzLogger } from "../util/log"
 import { trace } from "../util/trace"
-import cfg from "../../quartz.config"
+import { plugins } from "../../quartz.config"
 import { Argv } from "../cfg"
 
 export type QuartzProcessor = Processor<MDRoot, MDRoot, HTMLRoot>
 export function createProcessor(allSlugs: FullSlug[]): QuartzProcessor {
-  const transformers = cfg.plugins.transformers
+  const transformers = plugins.transformers
 
   return (
     unified()
@@ -27,12 +27,12 @@ export function createProcessor(allSlugs: FullSlug[]): QuartzProcessor {
       .use(
         transformers
           .filter((p) => p.markdownPlugins)
-          .flatMap((plugin) => plugin.markdownPlugins!(cfg)),
+          .flatMap((plugin) => plugin.markdownPlugins!()),
       )
       // MD AST -> HTML AST
       .use(remarkRehype, { allowDangerousHtml: true })
       // HTML AST -> HTML AST transforms
-      .use(transformers.filter((p) => p.htmlPlugins).flatMap((plugin) => plugin.htmlPlugins!(cfg, allSlugs)))
+      .use(transformers.filter((p) => p.htmlPlugins).flatMap((plugin) => plugin.htmlPlugins!(allSlugs)))
   )
 }
 
@@ -86,7 +86,7 @@ export function createFileParser(argv: Argv, fps: FilePath[]) {
         file.value = file.value.toString().trim()
 
         // Text -> Text transforms
-        for (const plugin of cfg.plugins.transformers.filter((p) => p.textTransform)) {
+        for (const plugin of plugins.transformers.filter((p) => p.textTransform)) {
           file.value = plugin.textTransform!(file.value.toString())
         }
 

@@ -1,14 +1,14 @@
 import { StaticResources } from "../util/resources"
 import { FilePath, FullSlug } from "../util/path"
-import { QuartzConfig } from "../cfg"
+import { plugins } from "../../quartz.config"
 
-export function getStaticResourcesFromPlugins(cfg: QuartzConfig) {
+export function getStaticResourcesFromPlugins() {
   const staticResources: StaticResources = {
     css: [],
     js: [],
   }
 
-  for (const transformer of cfg.plugins.transformers) {
+  for (const transformer of plugins.transformers) {
     const res = transformer.externalResources ? transformer.externalResources() : {}
     if (res?.js) {
       staticResources.js.push(...res.js)

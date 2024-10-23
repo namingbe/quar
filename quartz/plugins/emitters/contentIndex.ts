@@ -1,5 +1,5 @@
 import { Root } from "hast"
-import cfg from "../../../quartz.config"
+import { config } from "../../../quartz.config"
 import { GlobalConfiguration } from "../../cfg"
 import { getDate } from "../../components/Date"
 import { escapeHTML } from "../../util/escape"
@@ -98,7 +98,7 @@ export const ContentIndex: QuartzEmitterPlugin<Partial<Options>> = (opts) => {
       const linkIndex: ContentIndex = new Map()
       for (const [tree, file] of content) {
         const slug = file.data.slug!
-        const date = getDate(cfg.configuration, file.data) ?? new Date()
+        const date = getDate(config, file.data) ?? new Date()
         if (opts?.includeEmptyFiles || (file.data.text && file.data.text !== "")) {
           linkIndex.set(slug, {
             title: file.data.frontmatter?.title!,
@@ -118,7 +118,7 @@ export const ContentIndex: QuartzEmitterPlugin<Partial<Options>> = (opts) => {
         emitted.push(
           await write({
             argv,
-            content: generateSiteMap(cfg.configuration, linkIndex),
+            content: generateSiteMap(config, linkIndex),
             slug: "sitemap" as FullSlug,
             ext: ".xml",
           }),
@@ -129,7 +129,7 @@ export const ContentIndex: QuartzEmitterPlugin<Partial<Options>> = (opts) => {
         emitted.push(
           await write({
             argv,
-            content: generateRSSFeed(cfg.configuration, linkIndex, opts.rssLimit),
+            content: generateRSSFeed(config, linkIndex, opts.rssLimit),
             slug: "index" as FullSlug,
             ext: ".xml",
           }),

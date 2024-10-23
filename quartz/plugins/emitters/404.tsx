@@ -2,7 +2,7 @@ import { QuartzEmitterPlugin } from "../types"
 import { QuartzComponentProps } from "../../components/types"
 import BodyConstructor from "../../components/Body"
 import { pageResources, renderPage } from "../../components/renderPage"
-import cfg from "../../../quartz.config"
+import { config } from "../../../quartz.config"
 import { FullPageLayout } from "../../cfg"
 import { FilePath, FullSlug } from "../../util/path"
 import { sharedPageComponents } from "../../../quartz.layout"
@@ -31,10 +31,10 @@ export const NotFoundPage: QuartzEmitterPlugin = () => {
     async emit(argv, _content, resources): Promise<FilePath[]> {
       const slug = "404" as FullSlug
 
-      const url = new URL(`https://${cfg.configuration.baseUrl ?? "example.com"}`)
+      const url = new URL(`https://${config.baseUrl ?? "example.com"}`)
       const path = url.pathname as FullSlug
       const externalResources = pageResources(path, resources)
-      const notFound = i18n(cfg.configuration.locale).pages.error.title
+      const notFound = i18n(config.locale).pages.error.title
       const [tree, vfile] = defaultProcessedContent({
         slug,
         text: notFound,
@@ -44,7 +44,7 @@ export const NotFoundPage: QuartzEmitterPlugin = () => {
       const componentData: QuartzComponentProps = {
         fileData: vfile.data,
         externalResources,
-        cfg: cfg.configuration,
+        cfg: config,
         children: [],
         tree,
         allFiles: [],
@@ -53,7 +53,7 @@ export const NotFoundPage: QuartzEmitterPlugin = () => {
       return [
         await write({
           argv,
-          content: renderPage(cfg.configuration, slug, componentData, opts, externalResources),
+          content: renderPage(config, slug, componentData, opts, externalResources),
           slug,
           ext: ".html",
         }),

@@ -3,7 +3,7 @@ import { QuartzComponentProps } from "../../components/types"
 import HeaderConstructor from "../../components/Header"
 import BodyConstructor from "../../components/Body"
 import { pageResources, renderPage } from "../../components/renderPage"
-import cfg from "../../../quartz.config"
+import { config } from "../../../quartz.config"
 import { FullPageLayout } from "../../cfg"
 import { FilePath, pathToRoot } from "../../util/path"
 import { defaultContentPageLayout, sharedPageComponents } from "../../../quartz.layout"
@@ -55,13 +55,13 @@ export const ContentPage: QuartzEmitterPlugin<Partial<FullPageLayout>> = (userOp
           argv,
           fileData: file.data,
           externalResources,
-          cfg: cfg.configuration,
+          cfg: config,
           children: [],
           tree,
           allFiles,
         }
 
-        const content = renderPage(cfg.configuration, slug, componentData, opts, externalResources)
+        const content = renderPage(config, slug, componentData, opts, externalResources)
         const fp = await write({
           argv,
           content,

@@ -3,7 +3,7 @@ import { StaticResources } from "../util/resources"
 import { ProcessedContent } from "./vfile"
 import { QuartzComponent } from "../components/types"
 import { FilePath, FullSlug } from "../util/path"
-import { Argv, QuartzConfig } from "../cfg"
+import { Argv } from "../cfg"
 
 export interface PluginTypes {
   transformers: QuartzTransformerPluginInstance[]
@@ -18,8 +18,8 @@ export type QuartzTransformerPlugin<Options extends OptionType = undefined> = (
 export type QuartzTransformerPluginInstance = {
   name: string
   textTransform?: (src: string | Buffer) => string | Buffer
-  markdownPlugins?: (cfg: QuartzConfig) => PluggableList
-  htmlPlugins?: (cfg: QuartzConfig, allSlugs: FullSlug[]) => PluggableList
+  markdownPlugins?: () => PluggableList
+  htmlPlugins?: (allSlugs: FullSlug[]) => PluggableList
   externalResources?: () => Partial<StaticResources>
 }
 

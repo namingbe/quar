@@ -1,7 +1,6 @@
 import { ValidDateType } from "./components/Date"
 import { QuartzComponent } from "./components/types"
 import { ValidLocale } from "./i18n"
-import { PluginTypes } from "./plugins/types"
 import { Theme } from "./util/theme"
 
 export type Analytics =
@@ -77,11 +76,6 @@ export interface Argv {
   verbose: boolean
   output: string
   concurrency?: number
-}
-
-export interface QuartzConfig {
-  configuration: GlobalConfiguration
-  plugins: PluginTypes
 }
 
 export interface FullPageLayout {

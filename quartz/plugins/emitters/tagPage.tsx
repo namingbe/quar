@@ -5,7 +5,7 @@ import BodyConstructor from "../../components/Body"
 import { pageResources, renderPage } from "../../components/renderPage"
 import { ProcessedContent, QuartzPluginData, defaultProcessedContent } from "../vfile"
 import { FullPageLayout } from "../../cfg"
-import cfg from "../../../quartz.config"
+import { config } from "../../../quartz.config"
 import {
   FilePath,
   FullSlug,
@@ -65,8 +65,8 @@ export const TagPage: QuartzEmitterPlugin<Partial<TagPageOptions>> = (userOpts) 
         [...tags].map((tag) => {
           const title =
             tag === "index"
-              ? i18n(cfg.configuration.locale).pages.tagContent.tagIndex
-              : `${i18n(cfg.configuration.locale).pages.tagContent.tag}: ${tag}`
+              ? i18n(config.locale).pages.tagContent.tagIndex
+              : `${i18n(config.locale).pages.tagContent.tag}: ${tag}`
           return [
             tag,
             defaultProcessedContent({
@@ -95,13 +95,13 @@ export const TagPage: QuartzEmitterPlugin<Partial<TagPageOptions>> = (userOpts) 
           argv,
           fileData: file.data,
           externalResources,
-          cfg: cfg.configuration,
+          cfg: config,
           children: [],
           tree,
           allFiles,
         }
 
-        const content = renderPage(cfg.configuration, slug, componentData, opts, externalResources)
+        const content = renderPage(config, slug, componentData, opts, externalResources)
         const fp = await write({
           argv,
           content,

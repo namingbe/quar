@@ -7,7 +7,7 @@ import chalk from "chalk"
 import { parseMarkdown } from "./processors/parse"
 import { filterContent } from "./processors/filter"
 import { emitContent } from "./processors/emit"
-import cfg from "../quartz.config"
+import { plugins } from "../quartz.config"
 import { FilePath, joinSegments, slugifyFilePath } from "./util/path"
 import { glob } from "./util/glob"
 import { trace } from "./util/trace"
@@ -18,9 +18,9 @@ async function buildQuartz(argv: Argv) {
   const perf = new PerfTimer()
   const output = argv.output
 
-  const pluginCount = Object.values(cfg.plugins).flat().length
+  const pluginCount = Object.values(plugins).flat().length
   const pluginNames = (key: "transformers" | "filters" | "emitters") =>
-    cfg.plugins[key].map((plugin) => plugin.name)
+    plugins[key].map((plugin) => plugin.name)
   if (argv.verbose) {
     console.log(`Loaded ${pluginCount} plugins`)
     console.log(`  Transformers: ${pluginNames("transformers").join(", ")}`)

@@ -3,7 +3,7 @@ import { getStaticResourcesFromPlugins } from "../plugins"
 import { ProcessedContent } from "../plugins/vfile"
 import { QuartzLogger } from "../util/log"
 import { trace } from "../util/trace"
-import cfg from "../../quartz.config"
+import { plugins } from "../../quartz.config"
 import { Argv } from "../cfg"
 
 export async function emitContent(argv: Argv, content: ProcessedContent[]) {
@@ -13,8 +13,8 @@ export async function emitContent(argv: Argv, content: ProcessedContent[]) {
   log.start(`Emitting output files`)
 
   let emittedFiles = 0
-  const staticResources = getStaticResourcesFromPlugins(cfg)
-  for (const emitter of cfg.plugins.emitters) {
+  const staticResources = getStaticResourcesFromPlugins()
+  for (const emitter of plugins.emitters) {
     try {
       const emitted = await emitter.emit(argv, content, staticResources)
       emittedFiles += emitted.length

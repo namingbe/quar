@@ -1,12 +1,12 @@
 import { PerfTimer } from "../util/perf"
 import { ProcessedContent } from "../plugins/vfile"
-import cfg from "../../quartz.config"
+import { plugins } from "../../quartz.config"
 import { Argv } from "../cfg"
 
 export function filterContent(argv: Argv, content: ProcessedContent[]): ProcessedContent[] {
   const perf = new PerfTimer()
   const initialLength = content.length
-  for (const plugin of cfg.plugins.filters) {
+  for (const plugin of plugins.filters) {
     const updatedContent = content.filter((item) => plugin.shouldPublish(item))
 
     if (argv.verbose) {

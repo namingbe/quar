@@ -6,6 +6,7 @@ import toml from "toml"
 import { slugTag } from "../../util/path"
 import { QuartzPluginData } from "../vfile"
 import { i18n } from "../../i18n"
+import { config } from "../../../quartz.config"
 
 export interface Options {
   delimiters: string | [string, string]
@@ -44,7 +45,7 @@ export const FrontMatter: QuartzTransformerPlugin<Partial<Options>> = (userOpts)
   const opts = { ...defaultOptions, ...userOpts }
   return {
     name: "FrontMatter",
-    markdownPlugins(cfg) {
+    markdownPlugins() {
       return [
         [remarkFrontmatter, ["yaml", "toml"]],
         () => {
@@ -60,7 +61,7 @@ export const FrontMatter: QuartzTransformerPlugin<Partial<Options>> = (userOpts)
             if (data.title != null && data.title.toString() !== "") {
               data.title = data.title.toString()
             } else {
-              data.title = file.stem ?? i18n(cfg.configuration.locale).propertyDefaults.title
+              data.title = file.stem ?? i18n(config.locale).propertyDefaults.title
             }
 
             const tags = coerceToArray(coalesceAliases(data, ["tags", "tag"]))

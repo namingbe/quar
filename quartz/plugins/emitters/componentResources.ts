@@ -1,6 +1,6 @@
 import { FilePath, FullSlug, joinSegments } from "../../util/path"
 import { QuartzEmitterPlugin } from "../types"
-import cfg from "../../../quartz.config"
+import { config, plugins } from "../../../quartz.config"
 
 // @ts-ignore
 import spaRouterScript from "../../components/scripts/spa.inline"
@@ -13,7 +13,6 @@ import { googleFontHref, joinStyles } from "../../util/theme"
 import { Features, transform } from "lightningcss"
 import { transform as transpile } from "esbuild"
 import { write } from "./helpers"
-import { QuartzConfig } from "../../cfg"
 
 type ComponentResources = {
   css: string[]
@@ -21,9 +20,9 @@ type ComponentResources = {
   afterDOMLoaded: string[]
 }
 
-function getComponentResources(cfg: QuartzConfig): ComponentResources {
+function getComponentResources(): ComponentResources {
   const allComponents: Set<QuartzComponent> = new Set()
-  for (const emitter of cfg.plugins.emitters) {
+  for (const emitter of plugins.emitters) {
     const components = emitter.getQuartzComponents()
     for (const component of components) {
       allComponents.add(component)
@@ -68,14 +67,14 @@ async function joinScripts(scripts: string[]): Promise<string> {
   return res.code
 }
 
-function addGlobalPageResources(cfg: QuartzConfig, componentResources: ComponentResources) {
+function addGlobalPageResources(componentResources: ComponentResources) {
   // popovers
-  if (cfg.configuration.enablePopovers) {
+  if (config.enablePopovers) {
     componentResources.afterDOMLoaded.push(popoverScript)
     componentResources.css.push(popoverStyle)
   }
 
-  const analytics = cfg.configuration.analytics
+  const analytics = config.analytics
 
   if (analytics?.provider === "google") {
     const tagId = analytics.tagId
@@ -163,7 +162,7 @@ function addGlobalPageResources(cfg: QuartzConfig, componentResources: Component
     `)
   }
 
-  if (cfg.configuration.enableSPA) {
+  if (config.enableSPA) {
     componentResources.afterDOMLoaded.push(spaRouterScript)
   } else {
     componentResources.afterDOMLoaded.push(`
@@ -186,18 +185,18 @@ export const ComponentResources: QuartzEmitterPlugin = () => {
     async emit(argv, _content, _resources): Promise<FilePath[]> {
       const promises: Promise<FilePath>[] = []
       // component specific scripts and styles
-      const componentResources = getComponentResources(cfg)
+      const componentResources = getComponentResources()
       let googleFontsStyleSheet = ""
-      if (cfg.configuration.theme.fontOrigin === "local") {
+      if (config.theme.fontOrigin === "local") {
         // let the user do it themselves in css
-      } else if (cfg.configuration.theme.fontOrigin === "googleFonts" && !cfg.configuration.theme.cdnCaching) {
+      } else if (config.theme.fontOrigin === "googleFonts" && !config.theme.cdnCaching) {
         // when cdnCaching is true, we link to google fonts in Head.tsx
         let match
 
         const fontSourceRegex = /url\((https:\/\/fonts.gstatic.com\/s\/[^)]+\.(woff2|ttf))\)/g
 
         googleFontsStyleSheet = await (
-          await fetch(googleFontHref(cfg.configuration.theme))
+          await fetch(googleFontHref(config.theme))
         ).text()
 
         while ((match = fontSourceRegex.exec(googleFontsStyleSheet)) !== null) {
@@ -208,7 +207,7 @@ export const ComponentResources: QuartzEmitterPlugin = () => {
 
           googleFontsStyleSheet = googleFontsStyleSheet.replace(
             url,
-            `https://${cfg.configuration.baseUrl}/static/fonts/${filename}.ttf`,
+            `https://${config.baseUrl}/static/fonts/${filename}.ttf`,
           )
 
           promises.push(
@@ -234,10 +233,10 @@ export const ComponentResources: QuartzEmitterPlugin = () => {
       // important that this goes *after* component scripts
       // as the "nav" event gets triggered here and we should make sure
       // that everyone else had the chance to register a listener for it
-      addGlobalPageResources(cfg, componentResources)
+      addGlobalPageResources(componentResources)
 
       const stylesheet = joinStyles(
-        cfg.configuration.theme,
+        config.theme,
         googleFontsStyleSheet,
         ...componentResources.css,
         styles,
