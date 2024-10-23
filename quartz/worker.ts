@@ -12,7 +12,7 @@ export async function parseFiles(
   fps: FilePath[],
   allSlugs: FullSlug[],
 ) {
-  const processor = createProcessor(cfg, allSlugs)
+  const processor = createProcessor(allSlugs)
   const parse = createFileParser(argv, cfg, fps)
   return parse(processor)
 }

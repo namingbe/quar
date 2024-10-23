@@ -12,10 +12,11 @@ import path from "path"
 import workerpool, { Promise as WorkerPromise } from "workerpool"
 import { QuartzLogger } from "../util/log"
 import { trace } from "../util/trace"
+import cfg from "../../quartz.config"
 import { Argv, QuartzConfig } from "../cfg"
 
 export type QuartzProcessor = Processor<MDRoot, MDRoot, HTMLRoot>
-export function createProcessor(cfg: QuartzConfig, allSlugs: FullSlug[]): QuartzProcessor {
+export function createProcessor(allSlugs: FullSlug[]): QuartzProcessor {
   const transformers = cfg.plugins.transformers
 
   return (
@@ -124,7 +125,7 @@ export async function parseMarkdown(argv: Argv, cfg: QuartzConfig, allSlugs: Ful
   log.start(`Parsing input files using ${concurrency} threads`)
   if (concurrency === 1) {
     try {
-      const processor = createProcessor(cfg, allSlugs)
+      const processor = createProcessor(allSlugs)
       const parse = createFileParser(argv, cfg, fps)
       res = await parse(processor)
     } catch (error) {
