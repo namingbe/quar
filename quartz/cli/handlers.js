@@ -7,9 +7,7 @@ import fs from "fs"
 import { intro, outro, select, text } from "@clack/prompts"
 import { rimraf } from "rimraf"
 import prettyBytes from "pretty-bytes"
-import { execSync } from "child_process"
 import { randomUUID } from "crypto"
-import { Mutex } from "async-mutex"
 import { CreateArgv } from "./args.js"
 import {
   exitIfCancel,
@@ -255,13 +253,11 @@ export async function handleBuild(argv) {
     ],
   })
 
-  const buildMutex = new Mutex()
   let lastBuildMs = 0
   let cleanupBuild = null
   const build = async (clientRefresh) => {
     const buildStart = new Date().getTime()
     lastBuildMs = buildStart
-    const release = await buildMutex.acquire()
     if (lastBuildMs > buildStart) {
       release()
       return
@@ -295,7 +291,7 @@ export async function handleBuild(argv) {
     const { default: buildQuartz } = await import(`../../${cacheFile}?update=${randomUUID()}`)
     // ^ this import is relative, so base "cacheFile" path can't be used
 
-    cleanupBuild = await buildQuartz(argv, buildMutex, clientRefresh)
+    cleanupBuild = await buildQuartz(argv, clientRefresh)
     clientRefresh()
   }
 

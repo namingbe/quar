@@ -12,10 +12,9 @@ import { FilePath, joinSegments, slugifyFilePath } from "./util/path"
 import { glob } from "./util/glob"
 import { trace } from "./util/trace"
 import { options } from "./util/sourcemap"
-import { Mutex } from "async-mutex"
 import { Argv } from "./cfg"
 
-async function buildQuartz(argv: Argv, mut: Mutex) {
+async function buildQuartz(argv: Argv) {
   const perf = new PerfTimer()
   const output = argv.output
 
@@ -29,7 +28,6 @@ async function buildQuartz(argv: Argv, mut: Mutex) {
     console.log(`  Emitters: ${pluginNames("emitters").join(", ")}`)
   }
 
-  const release = await mut.acquire()
   perf.addEvent("clean")
   await rimraf(path.join(output, "*"), { glob: true })
   console.log(`Cleaned output directory \`${output}\` in ${perf.timeSince("clean")}`)
@@ -49,12 +47,11 @@ async function buildQuartz(argv: Argv, mut: Mutex) {
 
   await emitContent(argv, cfg, filteredContent)
   console.log(chalk.green(`Done processing ${fps.length} files in ${perf.timeSince()}`))
-  release()
 }
 
-export default async (argv: Argv, mut: Mutex) => {
+export default async (argv: Argv) => {
   try {
-    return await buildQuartz(argv, mut)
+    return await buildQuartz(argv)
   } catch (err) {
     trace("\nExiting Quartz due to a fatal error", err as Error)
   }
