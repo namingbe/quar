@@ -3,9 +3,10 @@ import { getStaticResourcesFromPlugins } from "../plugins"
 import { ProcessedContent } from "../plugins/vfile"
 import { QuartzLogger } from "../util/log"
 import { trace } from "../util/trace"
+import cfg from "../../quartz.config"
 import { Argv, QuartzConfig } from "../cfg"
 
-export async function emitContent(argv: Argv, cfg: QuartzConfig, content: ProcessedContent[]) {
+export async function emitContent(argv: Argv, content: ProcessedContent[]) {
   const perf = new PerfTimer()
   const log = new QuartzLogger(argv.verbose)
 

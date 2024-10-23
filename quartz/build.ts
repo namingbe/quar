@@ -45,7 +45,7 @@ async function buildQuartz(argv: Argv) {
   const parsedFiles = await parseMarkdown(argv, allSlugs, filePaths)
   const filteredContent = filterContent(argv, parsedFiles)
 
-  await emitContent(argv, cfg, filteredContent)
+  await emitContent(argv, filteredContent)
   console.log(chalk.green(`Done processing ${fps.length} files in ${perf.timeSince()}`))
 }
 
