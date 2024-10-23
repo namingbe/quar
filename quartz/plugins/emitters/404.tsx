@@ -2,6 +2,7 @@ import { QuartzEmitterPlugin } from "../types"
 import { QuartzComponentProps } from "../../components/types"
 import BodyConstructor from "../../components/Body"
 import { pageResources, renderPage } from "../../components/renderPage"
+import cfg from "../../../quartz.config"
 import { FullPageLayout } from "../../cfg"
 import { FilePath, FullSlug } from "../../util/path"
 import { sharedPageComponents } from "../../../quartz.layout"
@@ -27,7 +28,7 @@ export const NotFoundPage: QuartzEmitterPlugin = () => {
     getQuartzComponents() {
       return [Head, Body, pageBody, Footer]
     },
-    async emit(argv, cfg, _content, resources): Promise<FilePath[]> {
+    async emit(argv, _content, resources): Promise<FilePath[]> {
       const slug = "404" as FullSlug
 
       const url = new URL(`https://${cfg.configuration.baseUrl ?? "example.com"}`)

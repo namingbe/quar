@@ -4,6 +4,7 @@ import HeaderConstructor from "../../components/Header"
 import BodyConstructor from "../../components/Body"
 import { pageResources, renderPage } from "../../components/renderPage"
 import { ProcessedContent, QuartzPluginData, defaultProcessedContent } from "../vfile"
+import cfg from "../../../quartz.config"
 import { FullPageLayout } from "../../cfg"
 import path from "path"
 import {
@@ -52,7 +53,7 @@ export const FolderPage: QuartzEmitterPlugin<Partial<FolderPageOptions>> = (user
         Footer,
       ]
     },
-    async emit(argv, cfg, content, resources): Promise<FilePath[]> {
+    async emit(argv, content, resources): Promise<FilePath[]> {
       const fps: FilePath[] = []
       const allFiles = content.map((c) => c[1].data)
 

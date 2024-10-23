@@ -35,6 +35,6 @@ export type QuartzEmitterPlugin<Options extends OptionType = undefined> = (
 ) => QuartzEmitterPluginInstance
 export type QuartzEmitterPluginInstance = {
   name: string
-  emit(argv: Argv, cfg: QuartzConfig, content: ProcessedContent[], resources: StaticResources): Promise<FilePath[]>
+  emit(argv: Argv, content: ProcessedContent[], resources: StaticResources): Promise<FilePath[]>
   getQuartzComponents(): QuartzComponent[]
 }

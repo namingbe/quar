@@ -3,9 +3,9 @@ import { QuartzEmitterPlugin } from "../types"
 import path from "path"
 import fs from "fs"
 import { glob } from "../../util/glob"
-import { Argv, QuartzConfig } from "../../cfg"
+import { Argv } from "../../cfg"
 
-const filesToCopy = async (argv: Argv, cfg: QuartzConfig) => {
+const filesToCopy = async (argv: Argv) => {
   // glob all non MD files in content folder and copy it over
   return await glob("**", argv.directory, ["**/*.md"])
 }
@@ -16,9 +16,9 @@ export const Assets: QuartzEmitterPlugin = () => {
     getQuartzComponents() {
       return []
     },
-    async emit(argv, cfg, _content, _resources): Promise<FilePath[]> {
+    async emit(argv, _content, _resources): Promise<FilePath[]> {
       const assetsPath = argv.output
-      const fps = await filesToCopy(argv, cfg)
+      const fps = await filesToCopy(argv)
       const res: FilePath[] = []
       for (const fp of fps) {
         const ext = path.extname(fp)

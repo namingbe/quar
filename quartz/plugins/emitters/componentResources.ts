@@ -1,5 +1,6 @@
 import { FilePath, FullSlug, joinSegments } from "../../util/path"
 import { QuartzEmitterPlugin } from "../types"
+import cfg from "../../../quartz.config"
 
 // @ts-ignore
 import spaRouterScript from "../../components/scripts/spa.inline"
@@ -182,7 +183,7 @@ export const ComponentResources: QuartzEmitterPlugin = () => {
     getQuartzComponents() {
       return []
     },
-    async emit(argv, cfg, _content, _resources): Promise<FilePath[]> {
+    async emit(argv, _content, _resources): Promise<FilePath[]> {
       const promises: Promise<FilePath>[] = []
       // component specific scripts and styles
       const componentResources = getComponentResources(cfg)

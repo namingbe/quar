@@ -13,7 +13,7 @@ import workerpool, { Promise as WorkerPromise } from "workerpool"
 import { QuartzLogger } from "../util/log"
 import { trace } from "../util/trace"
 import cfg from "../../quartz.config"
-import { Argv, QuartzConfig } from "../cfg"
+import { Argv } from "../cfg"
 
 export type QuartzProcessor = Processor<MDRoot, MDRoot, HTMLRoot>
 export function createProcessor(allSlugs: FullSlug[]): QuartzProcessor {

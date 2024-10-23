@@ -1,4 +1,5 @@
 import { Root } from "hast"
+import cfg from "../../../quartz.config"
 import { GlobalConfiguration } from "../../cfg"
 import { getDate } from "../../components/Date"
 import { escapeHTML } from "../../util/escape"
@@ -92,7 +93,7 @@ export const ContentIndex: QuartzEmitterPlugin<Partial<Options>> = (opts) => {
   opts = { ...defaultOptions, ...opts }
   return {
     name: "ContentIndex",
-    async emit(argv, cfg, content, _resources) {
+    async emit(argv, content, _resources) {
       const emitted: FilePath[] = []
       const linkIndex: ContentIndex = new Map()
       for (const [tree, file] of content) {
